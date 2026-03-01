@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>生日快乐</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        html,body{width:100%;height:100%;overflow:hidden;background:linear-gradient(45deg,#ffc3d6,#f8e9f2,#ffe6ea)}
+
+        .page{
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            height:100%;
+            display:none;
+        }
+
+        #page1{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:linear-gradient(45deg,#ffc3d6,#f8e9f2,#ffe6ea);
+        }
+        .login-box{
+            background:#fff;
+            padding:30px;
+            border-radius:20px;
+            width:90%;
+            max-width:330px;
+            text-align:center;
+        }
+        .login-box h2{color:#ff5e88;margin-bottom:20px}
+        .login-input{width:100%;padding:12px;margin:8px 0;border:1px solid #ffccd5;border-radius:12px}
+        .login-btn{width:100%;padding:12px;margin-top:10px;background:#ff5e88;color:#fff;border:none;border-radius:12px;font-weight:bold}
+        .tip{font-size:12px;color:#999;margin-top:10px}
+
+        #cakePopup{
+            position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+            background:#fff;padding:30px;border-radius:24px;box-shadow:0 5px 20px rgba(0,0,0,0.2);
+            z-index:99999;text-align:center;display:none;min-width:320px;
+        }
+        .cake-box{position:relative;height:180px;display:flex;flex-direction:column;align-items:center;margin-bottom:20px}
+
+        .flame{width:16px;height:20px;background:linear-gradient(#ffdd66,#ffaa00);border-radius:50%;position:absolute;top:-18px;left:50%;transform:translateX(-50%);opacity:0;animation:flicker 0.4s infinite alternate}
+        @keyframes flicker{0%{transform:translateX(-50%) scale(1);opacity:0.9}100%{transform:translateX(-50%) scale(1.15);opacity:1}}
+        .candle{width:10px;height:35px;background:#fff;border-radius:5px;position:relative;z-index:10;opacity:0;transform:translateY(-400px)}
+
+        .cake{width:140px;min-height:28px;border-radius:20px;position:relative;opacity:0;transform:translateY(-400px);margin-top:-3px;box-shadow:0 4px 10px rgba(0,0,0,0.15)}
+        .c1{background:linear-gradient(90deg,#ffccd5,#ffb6c1)}
+        .c2{background:linear-gradient(90deg,#ffabbb,#ff99aa)}
+        .c3{background:linear-gradient(90deg,#ff8899,#ff7788)}
+        .c4{background:linear-gradient(90deg,#fff0f3,#ffe6ea);height:34px;border-radius:10px 10px 24px 24px;border-top:3px solid #ffccd5}
+
+        .text-cn{font-size:26px;font-weight:bold;color:#ff5e88;margin-bottom:10px}
+        .text-en{font-size:24px;font-style:italic;color:#ff5e88;margin-bottom:25px;font-family:Times New Roman}
+        #okBtn{background:#ff5e88;color:#fff;border:none;padding:12px 30px;border-radius:12px;font-size:16px;font-weight:bold}
+
+        .note{position:absolute;width:150px;padding:10px;border-radius:10px;box-shadow:0 3px 8px rgba(0,0,0,0.1);z-index:10;transform:scale(0.7);transition:transform 0.4s cubic-bezier(0.175,0.885,0.32,1.2)}
+        .note.show{transform:scale(1)}
+
+        #goEgg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.7);background:#fff;padding:15px 25px;border-radius:15px;font-size:22px;color:#ff5e88;font-weight:bold;z-index:9999;display:none;transition:transform 0.4s cubic-bezier(0.175,0.885,0.32,1.2)}
+        #goEgg.show{transform:translate(-50%,-50%) scale(1)}
+
+        #page5{background:#000}
+        #fireworks{position:absolute;width:100%;height:100%;top:0;left:0;z-index:1}
+        #wish{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:24px;color:#fff;text-align:center;width:90%;z-index:10;text-shadow:0 0 10px currentColor}
+
+        #errorPopup{
+            position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.7);
+            background:#fff;padding:25px;border-radius:20px;box-shadow:0 5px 20px rgba(0,0,0,0.2);
+            z-index:999999;text-align:center;display:none;opacity:0;
+            transition:transform 0.4s cubic-bezier(0.25,1.35,0.5,1), opacity 0.4s;
+            width:90%;max-width:320px;
+        }
+        #errorPopup.show{transform:translate(-50%,-50%) scale(1);opacity:1}
+        #errorPopup p{color:#ff5e88;font-size:16px;line-height:1.6;margin-bottom:20px}
+        #errorBtn{background:#ff5e88;color:#fff;border:none;padding:10px 25px;border-radius:12px;font-weight:bold}
+    </style>
+</head>
+<body>
+
+<div id="cakePopup">
+    <div class="cake-box">
+        <div class="flame"></div>
+        <div class="candle"></div>
+        <div class="cake c1"></div>
+        <div class="cake c2"></div>
+        <div class="cake c3"></div>
+        <div class="cake c4"></div>
+    </div>
+    <div class="text-cn">生日快乐！</div>
+    <div class="text-en">𝓗𝓪𝓹𝓹𝔂 𝓑𝓲𝓻𝓽𝓱𝓭𝓪𝔂</div>
+    <button type="button" id="okBtn">确定</button>
+</div>
+
+<div id="goEgg">请看彩蛋(๑╹ヮ╹๑)ﾉ</div>
+
+<!-- 登录页 -->
+<div class="page" id="page1">
+    <div class="login-box">
+        <h2>生日祝福</h2>
+        <input class="login-input" id="user" placeholder="名字">
+        <input class="login-input" id="pwd" placeholder="密码">
+        <button type="button" class="login-btn" onclick="login()">进入</button>
+        <div class="tip">名字：赵梓晴  密码：0302</div>
+    </div>
+</div>
+
+<!-- 便签页 -->
+<div class="page" id="page2"></div>
+
+<!-- 彩蛋页 -->
+<div class="page" id="page5">
+    <canvas id="fireworks"></canvas>
+    <div id="wish"></div>
+</div>
+
+<!-- 错误弹窗 -->
+<div id="errorPopup">
+    <p>账号为你的名字<br>密码为你的生日</p>
+    <button type="button" id="errorBtn">确定</button>
+</div>
+
+<script>
+    const WISH = "赵梓晴，祝你可以平平安安，心想事成！愿你天天开心。ଘ(੭ˊᵕˋ)੭* ੈ✩";
+    const NAME = "赵梓晴";
+    const PWD = "0302";
+    const NOTE_SPEED = 400;
+    const MAX_NOTE = Math.floor(20 * 1000 / NOTE_SPEED);
+
+    const colors = ["#ffcccc","#ccffcc","#ccccff","#ffccff","#ccffff"];
+    const texts = ["❤️ 早点睡觉","😊 开心一点","🥰 我很想你","😜 要快乐哦","✨ 梦想成真","😘 生日快乐","💖 记得想我","🍚 按时吃饭","😗 天天开心","😋 好运连连","😎 健康如意","🤩 生活圆满"];
+
+    let idx = 0;
+    let timer;
+
+    // 登录验证
+    function login(){
+        const u = document.getElementById("user").value.trim();
+        const p = document.getElementById("pwd").value.trim();
+        if(u === NAME && p === PWD){
+            document.getElementById("page1").style.display = "none";
+            document.getElementById("page2").style.display = "block";
+            playCake();
+        }else{
+            showError();
+        }
+    }
+
+    // 显示错误弹窗（回弹阻尼）
+    function showError(){
+        const e = document.getElementById("errorPopup");
+        e.style.display = "block";
+        setTimeout(()=>e.classList.add("show"), 10);
+    }
+
+    // 关闭错误弹窗
+    document.getElementById("errorBtn").onclick = function(){
+        const e = document.getElementById("errorPopup");
+        e.classList.remove("show");
+        setTimeout(()=>e.style.display = "none", 400);
+    }
+
+    // 蛋糕动画
+    function playCake(){
+        const pop = document.getElementById("cakePopup");
+        pop.style.display = "block";
+        const flame = document.querySelector(".flame");
+        const candle = document.querySelector(".candle");
+        const cakes = document.querySelectorAll(".cake");
+        const elastic = "cubic-bezier(0.25,1.35,0.5,1)";
+
+        setTimeout(()=>{
+            candle.style.transition = `transform 0.8s ${elastic}, opacity 0.4s`;
+            candle.style.transform = "translateY(0)";
+            candle.style.opacity = 1;
+        },200);
+        setTimeout(()=>{flame.style.opacity=1},400);
+        let d = 500;
+        cakes.forEach(c=>{
+            setTimeout(()=>{
+                c.style.transition = `transform 0.85s ${elastic}, opacity 0.4s`;
+                c.style.transform = "translateY(0)";
+                c.style.opacity = 1;
+            },d);
+            d+=200;
+        });
+    }
+
+    // 确定关闭蛋糕
+    document.getElementById("okBtn").onclick = ()=>{
+        document.getElementById("cakePopup").style.display = "none";
+        startNote();
+    };
+
+    // 便签生成
+    function startNote(){
+        const page2 = document.getElementById("page2");
+        page2.style.display = "block";
+        idx = 0;
+        clearInterval(timer);
+        timer = setInterval(()=>{
+            if(idx >= MAX_NOTE){
+                clearInterval(timer);
+                setTimeout(()=>{
+                    document.getElementById("goEgg").style.display = "block";
+                    setTimeout(()=>document.getElementById("goEgg").classList.add("show"),100);
+                }, 100); // 0.1秒弹出请看彩蛋
+                return;
+            }
+            idx++;
+            const note = document.createElement("div");
+            note.classList.add("note");
+            note.style.background = colors[Math.floor(Math.random()*colors.length)];
+            note.innerText = texts[Math.floor(Math.random()*texts.length)];
+            note.style.left = Math.random()*85 + "%";
+            note.style.top = Math.random()*85 + "%";
+            page2.appendChild(note);
+            setTimeout(()=>note.classList.add("show"),50);
+        }, NOTE_SPEED);
+    }
+
+    // 进入彩蛋
+    document.getElementById("goEgg").onclick = ()=>{
+        document.getElementById("goEgg").style.display = "none";
+        document.querySelectorAll(".page").forEach(p=>p.style.display="none");
+        document.getElementById("page5").style.display = "block";
+        initFireworks();
+        typeWriter();
+    };
+
+    // 彩蛋文字：彩色逐字打字机（一个一个出）
+    function typeWriter(){
+        const el = document.getElementById("wish");
+        el.innerHTML = "";
+        let i = 0;
+        const colorList = ["#00ffcc","#ff66cc","#ffff66","#66ff99","#ff9966","#cc66ff"];
+        function ty(){
+            if(i >= WISH.length) return;
+            const span = document.createElement("span");
+            span.style.color = colorList[Math.floor(Math.random()*colorList.length)];
+            span.textContent = WISH[i];
+            el.appendChild(span);
+            i++;
+            setTimeout(ty, 120);
+        }
+        ty();
+    }
+
+    // 烟花
+    function initFireworks(){
+        const canvas = document.getElementById("fireworks");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particles = [];
+        let hue = 0;
+
+        function random(min,max){return Math.random()*(max-min)+min}
+        class Particle{
+            constructor(x,y){
+                this.x = x; this.y = y;
+                this.speed = random(2,6);
+                this.angle = random(0,Math.PI*2);
+                this.gravity = 0.05;
+                this.vx = Math.cos(this.angle)*this.speed;
+                this.vy = Math.sin(this.angle)*this.speed;
+                this.alpha = 1;
+                this.decay = random(0.005,0.01);
+                this.color = `hsl(${hue},100%,50%)`;
+            }
+            update(){
+                this.vy += this.gravity;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.alpha -= this.decay;
+            }
+            draw(){
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x,this.y,2,0,Math.PI*2);
+                ctx.fill();
+            }
+        }
+
+        function create(x,y){
+            hue = random(0,360);
+            for(let i=0;i<100;i++) particles.push(new Particle(x,y));
+        }
+
+        function loop(){
+            ctx.globalAlpha = 0.1;
+            ctx.fillStyle = "#000";
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.globalAlpha = 1;
+            particles = particles.filter(p=>p.alpha>0);
+            particles.forEach(p=>{p.update();p.draw()});
+            if(Math.random()<0.1) create(random(0,canvas.width),random(0,canvas.height*0.7));
+            requestAnimationFrame(loop);
+        }
+        loop();
+    }
+</script>
+</body>
+</html>
